@@ -22,7 +22,7 @@
 喜欢的话留下你的星星╭(●｀∀´●)╯╰(●’◡’●)╮
 
 ## 演示地址
-[https://wxingheng.github.io][1]
+[https://wxingheng.github.io](https://wxingheng.github.io)
 
 ## 项目特点
 
@@ -45,7 +45,7 @@
 类似演示地址其中 wxingheng 为我的用户名
 
 
-现在 ```https://你的用户名.github.io``` 就是你的个人博客了,例如[https://wxingheng.github.io][1]
+现在 ```https://你的用户名.github.io``` 就是你的个人博客了,例如[https://wxingheng.github.io](https://wxingheng.github.io)
 
 ## 开发
 
