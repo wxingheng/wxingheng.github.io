@@ -20,6 +20,7 @@
             this.$setTitle(this.$route.meta.title)
             let windowSize = this.$util.getWindowSize()
             let pathArr = this.$route.path.split("/")
+            console.log(pathArr);
             if (pathArr[1] == "user" && windowSize.height > windowSize.width * 1.2) {
                 this.$router.push("/mobile/user/blog")
             }
