@@ -76,7 +76,7 @@
             return {
                 query: {
                     page: 1,
-                    pageSize: 5,
+                    pageSize: 500,
                     pageNumber: 1
                 },
                 loading: false,

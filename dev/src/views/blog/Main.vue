@@ -7,7 +7,7 @@
             <el-button type="primary" icon="el-icon-edit" round plain style="float: right;" @click="goAdd">写博文</el-button>
         </el-card>
 
-        <div v-if="blogs&&blogs.length>0">
+        <div v-if="blogs&&blogs.length>0" style="min-height: 865px">
             <el-card shadow="hover" v-for="(item,index) in blogs" :key="'p'+index" style="margin-bottom: 20px" v-if="!item.hide">
                 <div slot="header">
                     <el-row>
@@ -57,7 +57,7 @@
             return {
                 query: {
                     page: 1,
-                    pageSize: 5,
+                    pageSize: 500,
                     pageNumber: 1
                 },
                 loading: false,
@@ -79,6 +79,7 @@
                 this.loading = true
                 GistApi.list(this.query).then((response) => {
                     let result = response.data
+                    console.log('result------->', result);
                     let pageNumber = this.$util.parseHeaders(response.headers)
                     if (pageNumber) {
                         this.query.pageNumber = pageNumber
@@ -100,6 +101,7 @@
                 }).then(() => this.loading = false)
             },
             search() {
+              console.log('this.blogs---->', this.blogs);
                 for (let i = 0; i < this.blogs.length; i++) {
                     this.blogs[i].hide = this.blogs[i].title.indexOf(this.searchKey) < 0
                 }
