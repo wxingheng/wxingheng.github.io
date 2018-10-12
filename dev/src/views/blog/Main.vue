@@ -1,7 +1,8 @@
 <template>
     <div style="min-height: 600px" v-loading="loading">
         <el-card shadow="never" style="margin-bottom: 20px">
-            <el-input placeholder="请输入关键字" v-model="searchKey" clearable style="width: 300px"></el-input>
+            <el-input placeholder="请输入关键字111" v-model="searchKey" @keyup.enter.native="autoSearch" clearable style="width: 300px"></el-input>
+            <!-- <input type="text" v-model="searchKey" @keyup="autoSearch"> -->
             <el-button @click="search" icon="el-icon-search" style="margin-left: 10px" circle plain></el-button>
             <el-button @click="$share()" style="margin-left: 10px" icon="el-icon-share" type="warning" plain circle></el-button>
             <el-button type="primary" icon="el-icon-edit" round plain style="float: right;" @click="goAdd">写博文</el-button>
@@ -50,101 +51,108 @@
     </div>
 </template>
 <script>
-    import { mapGetters } from 'vuex'
-    import GistApi from '@/api/gist'
-    export default {
-        data() {
-            return {
-                query: {
-                    page: 1,
-                    pageSize: 500,
-                    pageNumber: 1
-                },
-                loading: false,
-                searchKey: "",
-                blogs: []
+import { mapGetters } from "vuex";
+import GistApi from "@/api/gist";
+export default {
+  data() {
+    return {
+      query: {
+        page: 1,
+        pageSize: 500,
+        pageNumber: 1
+      },
+      loading: false,
+      searchKey: "",
+      blogs: []
+    };
+  },
+  computed: {
+    ...mapGetters(["token"])
+  },
+  mounted() {
+    this.list();
+  },
+  methods: {
+    list() {
+      this.blogs = [];
+      this.loading = true;
+      GistApi.list(this.query)
+        .then(response => {
+          let result = response.data;
+          console.log("result------->", result);
+          let pageNumber = this.$util.parseHeaders(response.headers);
+          if (pageNumber) {
+            this.query.pageNumber = pageNumber;
+          }
+          for (let i = 0; i < result.length; i++) {
+            for (let key in result[i].files) {
+              let data = {};
+              data["title"] = key;
+              data["url"] = result[i].files[key];
+              data["description"] = result[i]["description"];
+              data["id"] = result[i]["id"];
+              data["createTime"] = this.$util.utcToLocal(
+                result[i]["created_at"]
+              );
+              data["updateTime"] = this.$util.utcToLocal(
+                result[i]["updated_at"]
+              );
+              data["hide"] = false;
+              this.blogs.push(data);
+              break;
             }
-        },
-        computed: {
-            ...mapGetters([
-                'token',
-            ])
-        },
-        mounted() {
-            this.list()
-        },
-        methods: {
-            list() {
-                this.blogs = []
-                this.loading = true
-                GistApi.list(this.query).then((response) => {
-                    let result = response.data
-                    console.log('result------->', result);
-                    let pageNumber = this.$util.parseHeaders(response.headers)
-                    if (pageNumber) {
-                        this.query.pageNumber = pageNumber
-                    }
-                    for (let i = 0; i < result.length; i++) {
-                        for (let key in result[i].files) {
-                            let data = {}
-                            data['title'] = key
-                            data['url'] = result[i].files[key]
-                            data['description'] = result[i]['description']
-                            data['id'] = result[i]['id']
-                            data['createTime'] = this.$util.utcToLocal(result[i]['created_at'])
-                            data['updateTime'] = this.$util.utcToLocal(result[i]['updated_at'])
-                            data['hide'] = false
-                            this.blogs.push(data)
-                            break
-                        }
-                    }
-                }).then(() => this.loading = false)
-            },
-            search() {
-              console.log('this.blogs---->', this.blogs);
-                for (let i = 0; i < this.blogs.length; i++) {
-                    this.blogs[i].hide = this.blogs[i].title.indexOf(this.searchKey) < 0
-                }
-            },
-            editBlog(index) {
-                if (!this.token) {
-                    this.$message({
-                        message: '请绑定有效的Token',
-                        type: 'warning'
-                    })
-                    return
-                }
-                this.$router.push('/user/blog/edit/' + this.blogs[index].id)
-            },
-            deleteBlog(index) {
-                this.$confirm('是否永久删除该博客?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    let blog = this.blogs[index]
-                    GistApi.delete(blog.id).then((result) => {
-                        this.$message({
-                            message: '删除成功',
-                            type: 'success'
-                        })
-                        this.blogs.splice(index, 1)
-                    })
-                })
-            },
-            goAdd() {
-                if (!this.token) {
-                    this.$message({
-                        message: '请绑定有效的Token',
-                        type: 'warning'
-                    })
-                    return
-                }
-                this.$router.push('/user/blog/add')
-            },
-            goDetails(id) {
-                this.$router.push("/user/blog/details/" + id)
-            }
-        }
+          }
+        })
+        .then(() => (this.loading = false));
+    },
+    search() {
+      console.log("this.blogs---->", this.blogs);
+      for (let i = 0; i < this.blogs.length; i++) {
+        this.blogs[i].hide = this.blogs[i].title.indexOf(this.searchKey) < 0;
+      }
+    },
+    autoSearch(e) {
+      this.search();
+    },
+    editBlog(index) {
+      if (!this.token) {
+        this.$message({
+          message: "请绑定有效的Token",
+          type: "warning"
+        });
+        return;
+      }
+      this.$router.push("/user/blog/edit/" + this.blogs[index].id);
+    },
+    deleteBlog(index) {
+      this.$confirm("是否永久删除该博客?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        let blog = this.blogs[index];
+        GistApi.delete(blog.id).then(result => {
+          this.$message({
+            message: "删除成功",
+            type: "success"
+          });
+          this.blogs.splice(index, 1);
+        });
+      });
+    },
+    goAdd() {
+      if (!this.token) {
+        this.$message({
+          message: "请绑定有效的Token",
+          type: "warning"
+        });
+        return;
+      }
+      this.$router.push("/user/blog/add");
+    },
+    goDetails(id) {
+      this.$router.push("/user/blog/details/" + id);
     }
+  }
+};
 </script>
