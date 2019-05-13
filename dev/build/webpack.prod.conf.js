@@ -28,7 +28,7 @@ const webpackConfig = merge(baseWebpackConfig, {
   output: {
     path: config.build.assetsRoot,
     // publicpath  打包输出的前缀
-    publicPath: cdnConfig.host,
+    // publicPath: cdnConfig.host,
     filename: utils.assetsPath('js/[name].[chunkhash].js'),
     chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
   },
